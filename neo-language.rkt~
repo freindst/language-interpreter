@@ -30,32 +30,20 @@
       ;(function (x y z,...) x)
       ((equal? (car neo-code) 'function)
        (list 'func-exp
-             (list 'params (cadr neo-code))
+             (list 'params (caadr neo-code))
              (list 'body-exp (neo-parser (caddr neo-code)))))
-      ;(call (function (x y z) (math + (math + x y) z)) (1 2 3)) ->
-      ;(app-exp (func-exp (params (identifier1, identifier2, identifer3 ...)) (body-exp)) ((neo-exp1 neo-exp2 neo-exp3 ...))
       ((equal? (car neo-code) 'call)
        (list 'app-exp
              (neo-parser (cadr neo-code))
              (neo-parser (caddr neo-code))))
-      (else (map neo-parser neo-code)) ;((neo-parser 1) (neo-parser 'a) (neo-parser (math + 1 2)))
+      (else #false)
       )
     )
   )
 
-;env = ((a 1) (b 2) (c 5)
-(define extend-env
-  (lambda (list-of-varname list-of-value env) ;((x y z) (1 2 3) env)
-    (cond
-      ((null? list-of-varname) env)
-      ((null? list-of-value) env)
-      (else (extend-env (cdr list-of-varname) (cdr list-of-value)
-       (cons (list (car list-of-varname)
-                   (car list-of-value))
-             env)))
-      )
-    )
-  )
+
+;(display (neo-parser sample-code))
+;(display (de-neo-parser (neo-parser sample-code)))
 
 ;(app-exp (func-exp (params x) (body-exp (var-exp x))) (var-exp a))
 (define run-neo-parsed-code
@@ -74,14 +62,13 @@
        (run-neo-parsed-code (cadr (caddr parsed-code)) env))
       (else (run-neo-parsed-code
              (cadr parsed-code) ;function expression
-             (extend-env
-              (cadr (cadr (cadr parsed-code)))
-              (map (lambda (exp) (run-neo-parsed-code exp env)) (caddr parsed-code));list of values ((num-exp 1) (var-exp a) (math-exp + (num-exp 2) (num-exp 3)))
-              env);environment scope update
+             (cons (list (cadr (cadr (cadr parsed-code))) ;(x 1) (1 is the value of a)
+                         (run-neo-parsed-code (caddr parsed-code) env))
+                   env) ;environment scope update
              )
             )
       )
-    ) 
+    )
   )
 
 ;tool to deal with math
@@ -100,8 +87,8 @@
   )
 
 ;(define env '((a 1) (b 2) (c 5)))
-;(app-exp (func-exp (params (identifier1, identifier2, identifer3 ...)) (body-exp)) ((neo-exp1 neo-exp2 neo-exp3 ...))
-(define sample-code '(call (function () (math + (math + a b) c)) ()))
+(define sample-code '(call (function(x) (math + 1 1)) 4))
+(display (neo-parser sample-code))
+(run-neo-parsed-code (neo-parser sample-code) env)
+;(define sample-code '(function(x) (math + x x)))
 ;(display (neo-parser sample-code))
-(define parsed-neo-code (neo-parser sample-code))
-(run-neo-parsed-code parsed-neo-code env)
