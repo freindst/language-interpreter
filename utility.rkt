@@ -10,4 +10,20 @@
     )
   )
 
+(define getVarnames
+  (lambda (lst)
+    (if (null? lst) '()
+        (cons (car (car lst)) (getVarnames (cdr lst)))
+        )
+    )
+  )
+
+(define getValues
+  (lambda (lst)
+    (if (null? lst) '()
+        (cons (car (cdr (car lst))) (getValues (cdr lst)))
+        )
+    )
+  )
+
 (provide (all-defined-out))
