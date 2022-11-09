@@ -173,8 +173,7 @@
           (new_env (extend_local_scope list-of-names list-of-values env))
           ;new variables will be added to the local scope
           (body (elementAt parsed-code 2)))
-    ;(run-neo-parsed-code body new_env)
-      (display list-of-values)
+    (run-neo-parsed-code body new_env)
     )
   )
 )
