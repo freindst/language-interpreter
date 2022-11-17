@@ -161,11 +161,8 @@
 (define run-let-exp
   (lambda (parsed-code env)
     ;((a (num-exp 7)) (b (var-exp a)) (x (var-exp b))) > ((a 7) (b 7) (x 7))
-    ;(a (num-exp 7)) -> (a 7) < (list (car code) (run-neo-parsed-code (cadr code) env)))
-    ;update map with finished cascade-update-env
-    (let* ((resolved-var-list (map (lambda (pair)
-                                     (list (car pair) (run-neo-parsed-code (cadr pair) env)))
-                                   (elementAt parsed-code 1)))
+    ;(a (num-exp 7)) -> (a 7) < (list (car code) (run-neo-parsed-code (cadr code) env))) 
+    (let* ((resolved-var-list (cascade-update-env (elementAt parsed-code 1) env))
            (list-of-names (getVarnames (elementAt parsed-code 1)))
            ;list-of-values = ((num-exp 7) (var-exp a) (var-exp b))
            ;body = (math + (var-exp x) (var-exp a))
@@ -173,12 +170,12 @@
           (new_env (extend_local_scope list-of-names list-of-values env))
           ;new variables will be added to the local scope
           (body (elementAt parsed-code 2)))
-    (run-neo-parsed-code body new_env)
+    ;(run-neo-parsed-code body new_env)
+      (display list-of-values)
     )
   )
 )
 
-;cascade-update-env should use run-neo-parsed-code to resolve the value from expressions every time using new environment
 (define cascade-update-env
   (lambda (parsed-scope env)
     (if (null? parsed-scope) env
